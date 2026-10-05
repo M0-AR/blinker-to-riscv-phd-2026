@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From Blinker to RISC-V — Build Your Own CPU</title>
+<meta name="description" content="From a blinking LED to a working RV32I RISC-V processor: a verified, reproducible open-hardware journey. 26/26 tests pass, 100% instruction coverage, fits a $40 FPGA.">
+<style>
+  :root{--bg:#0d1117;--panel:#161b22;--line:#30363d;--txt:#c9d1d9;--mut:#8b949e;
+    --grn:#7ee787;--blu:#79c0ff;--pur:#d2a8ff;--org:#ffa657;--acc:#58a6ff}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--txt);
+    font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px}
+  header.hero{background:radial-gradient(900px 320px at 20% -40px,#1f6feb33,transparent),
+    radial-gradient(700px 300px at 85% -30px,#8957e533,transparent);padding:72px 0 46px;
+    border-bottom:1px solid var(--line);text-align:center}
+  .kicker{color:var(--grn);letter-spacing:.14em;font-size:13px;font-weight:700;text-transform:uppercase}
+  h1{font-size:clamp(34px,6vw,58px);line-height:1.08;margin:14px 0 10px;color:#fff}
+  h1 span{background:linear-gradient(90deg,var(--blu),var(--pur));-webkit-background-clip:text;
+    background-clip:text;color:transparent}
+  .sub{color:var(--mut);font-size:19px;max-width:760px;margin:0 auto}
+  .badges{margin:22px 0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .badges span{border:1px solid var(--line);border-radius:20px;padding:4px 14px;font-size:13px;color:var(--mut)}
+  .cta{margin-top:26px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-block;padding:12px 26px;border-radius:10px;font-weight:700;text-decoration:none}
+  .btn.pri{background:var(--acc);color:#04122b} .btn.sec{border:1px solid var(--line);color:var(--txt)}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:34px 0}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center}
+  .stat b{display:block;font-size:32px;color:#fff} .stat small{color:var(--mut)}
+  section{padding:44px 0;border-bottom:1px solid var(--line)} h2{color:#fff;font-size:28px;margin:0 0 6px}
+  .lede{color:var(--mut);max-width:720px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:20px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .card h3{margin:0 0 8px;color:#fff;font-size:18px} .card p{margin:0;color:var(--mut);font-size:15px}
+  pre{background:#010409;border:1px solid var(--line);border-radius:12px;padding:18px;overflow:auto;
+    font-size:14px} code{color:var(--grn)}
+  table{width:100%;border-collapse:collapse;margin-top:16px;font-size:15px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--mut);font-weight:600} td b{color:#fff}
+  .steps{counter-reset:s;margin:18px 0 0;padding:0;list-style:none}
+  .steps li{position:relative;padding:14px 14px 14px 56px;background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:12px;
+    width:30px;height:30px;border-radius:50%;background:#1f6feb;color:#fff;font-weight:700;
+    display:flex;align-items:center;justify-content:center}
+  .steps b{color:#fff}
+  footer{padding:34px 0 60px;color:var(--mut);text-align:center;font-size:14px}
+  footer a{color:var(--acc)} img.shot{width:100%;border:1px solid var(--line);border-radius:14px;margin-top:16px}
+  .demo{background:#010409;border:1px solid var(--line);border-radius:14px;padding:8px;margin-top:16px}
+  @media(max-width:640px){.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+  <div class="kicker">Open hardware · RV32I · Verilog · MIT licensed</div>
+  <h1>From Blinker <span>to RISC-V</span></h1>
+  <p class="sub">Start with a blinking LED. End with <b style="color:#fff">your own
+  32-bit processor</b> running real compiled C — one small verified step at a time,
+  on a ~$40 FPGA or entirely in simulation.</p>
+  <div class="badges"><span>26/26 tests pass</span><span>100% RV32I coverage</span>
+  <span>~1180 / 1280 LUT</span><span>5 boards</span><span>Docker reproducible</span></div>
+  <div class="cta">
+    <a class="btn pri" href="#quickstart">Start in 60 seconds</a>
+    <a class="btn sec" href="#journey">See the journey</a>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>26/26</b><small>directed CPU tests passing</small></div>
+    <div class="stat"><b>100%</b><small>of 39-item RV32I list covered</small></div>
+    <div class="stat"><b>1180</b><small>logic units vs 1280 budget (fits)</small></div>
+    <div class="stat"><b>4.25</b><small>cycles per instruction (bound)</small></div>
+  </div>
+</div></header>
+
+<div class="wrap">
+<section id="promise">
+  <h2>The promise</h2>
+  <p class="lede">Five sentences that tell you everything: you build a real processor
+  from nothing; every step is tested before the next begins; standard compilers target
+  it on day one of completion; all numbers on this page come from executed runs in
+  <code>bench/results.json</code>; and the whole lab reproduces with one command.</p>
+  <div class="demo"><img class="shot" src="assets/terminal-demo.svg" alt="Simulated terminal: CPU prints hello and draws"></div>
+</section>
+
+<section id="quickstart">
+  <h2>Quick start — 60 seconds, no hardware</h2>
+  <p class="lede">Python 3 is all you need. Each command ends with a proof line —
+  compare yours; they must match.</p>
+<pre><code>git clone &lt;your-fork-url&gt; blinker-to-riscv
+cd blinker-to-riscv
+python3 sim/test_golden_model.py   # RESULT: 26 passed, 0 failed
+python3 sim/check_rtl.py           # ALL RTL STRUCTURAL CHECKS PASSED
+python3 fw/generate_hex.py         # FIRMWARE HEX VERIFIED (x8=31, x10=143)
+python3 bench/bench.py             # 100.0% coverage, CPI 4.25, 1180 LUT</code></pre>
+  <p class="lede">With Docker (simulators + synthesis + compiler):
+  <code>docker compose -f docker/docker-compose.yml up sim</code></p>
+</section>
+
+<section id="journey">
+  <h2>The journey — 24 steps, one change at a time</h2>
+  <ol class="steps">
+    <li><b>Blink.</b> Count on LEDs. Learn clocks, Verilog, and the reset button you press with a finger.</li>
+    <li><b>Slow down.</b> A clock divider (gearbox) makes megahertz visible to human eyes.</li>
+    <li><b>Remember.</b> Patterns from memory + a program counter: the seed of every CPU.</li>
+    <li><b>Decode.</b> Teach the design to recognize 11 RISC-V instruction classes and 5 immediate formats.</li>
+    <li><b>Compute.</b> Register file + state machine + ALU: read two numbers, compute, write one back.</li>
+    <li><b>Jump &amp; branch.</b> Loops, function calls, and all six conditions — now it can decide.</li>
+    <li><b>Reach far.</b> Big constants, byte/half/word memory, masks and sign extension.</li>
+    <li><b>Talk.</b> LEDs and a serial port appear as addresses; the CPU prints <i>Hello</i>.</li>
+    <li><b>Grow up.</b> Fixed-point Mandelbrot, multiply routine, compiled C, flash execute-in-place.</li>
+  </ol>
+</section>
+
+<section id="how">
+  <h2>How the CPU works — five questions</h2>
+  <p class="lede">Where is the instruction? How is it understood? Where are the numbers?
+  What computes? How does it reach the world? Answer those and you can read any processor.</p>
+  <div class="grid">
+    <div class="card"><h3>🔢 Program counter</h3><p>Byte address of the current instruction; +4 each step, or a jump/branch target.</p></div>
+    <div class="card"><h3>🔍 Decoder</h3><p>7-bit opcode + function codes + immediates in R/I/S/B/U/J formats.</p></div>
+    <div class="card"><h3>🗄️ Registers</h3><p>32 numbers, two read per cycle; <code>x0</code> is always zero.</p></div>
+    <div class="card"><h3>🧮 ALU</h3><p>One shared subtract does math, compares, and branches; one shifter does all shifts.</p></div>
+    <div class="card"><h3>🚌 Bus</h3><p>Top address bits choose RAM, devices (LEDs/UART), or flash. One polite rule: wait when memory is busy.</p></div>
+    <div class="card"><h3>💾 Memory map</h3><p><code>00</code> RAM · <code>01</code> devices (one-hot) · <code>10</code> SPI flash execute-in-place.</p></div>
+  </div>
+</section>
+
+<section id="numbers">
+  <h2>Live numbers — from executed runs</h2>
+  <table><tr><th>What</th><th>Value</th><th>Where it comes from</th></tr>
+  <tr><td><b>Directed tests</b></td><td>26/26 pass</td><td><code>sim/test_golden_model.py</code></td></tr>
+  <tr><td><b>Instruction coverage</b></td><td>100% of 39-item RV32I list</td><td><code>bench/results.json</code></td></tr>
+  <tr><td><b>Size (standard)</b></td><td>~1180 logic units / 1280 budget</td><td>calibrated estimate; Docker synthesis measures</td></tr>
+  <tr><td><b>Size (minimal)</b></td><td>~980 logic units</td><td>core only, no peripherals</td></tr>
+  <tr><td><b>Speed</b></td><td>4.25 cycles/instruction bound</td><td>4-state machine model</td></tr>
+  <tr><td><b>Firmware proofs</b></td><td>counter x8=31 · 13×11=143, halted</td><td><code>fw/generate_hex.py</code></td></tr></table>
+</section>
+
+<section id="stories">
+  <h2>Who is this for?</h2>
+  <div class="grid">
+    <div class="card"><h3>🎓 Students</h3><p>Build a CPU line by line; each evening ends with a passing test and something visible.</p></div>
+    <div class="card"><h3>👩‍🏫 Teachers</h3><p>One concept per lecture from the journey map; homework writes itself.</p></div>
+    <div class="card"><h3>🔌 Hobbyists</h3><p>Real LEDs Friday, real terminal Saturday, Mandelbrot art Sunday.</p></div>
+    <div class="card"><h3>💼 Candidates</h3><p>Whiteboard fetch→decode→execute with war stories and trade-offs.</p></div>
+  </div>
+</section>
+
+<section id="boards">
+  <h2>Boards &amp; next steps</h2>
+  <p class="lede"><b>IceStick · IceBreaker · ULX3S · ARTY · Tang Nano 9K.</b>
+  No board? Simulation covers everything above. With a board: synthesize, program,
+  open a 115200-baud terminal, press reset. Roadmap: pipelined variant, interrupts,
+  more boards, bigger demo gallery. Full instructions in the README.</p>
+  <div class="cta"><a class="btn pri" href="#quickstart">Run it now</a>
+  <a class="btn sec" href="https://github.com/">Star on GitHub</a></div>
+</section>
+</div>
+
+<footer><div class="wrap">
+  From Blinker to RISC-V · MIT licensed · Numbers from executed runs ·
+  <a href="../README.md">README</a> · <a href="../bench/results.json">results.json</a><br>
+  To publish: Settings → Pages → Deploy from a branch → <code>main</code> + <code>/docs</code>.
+</div></footer>
+</body>
+</html>
