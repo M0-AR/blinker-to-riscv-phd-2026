@@ -1,0 +1,17 @@
+services:
+  sim:
+    build: { context: .., dockerfile: docker/Dockerfile }
+    image: blinker-riscv-lab:latest
+    volumes: ["..:/work"]
+    working_dir: /work
+    # Default: full offline verification (no FPGA needed)
+    command: ["bash", "-c", "python3 sim/test_golden_model.py && python3 sim/check_rtl.py && python3 fw/generate_hex.py && python3 bench/bench.py"]
+    profiles: ["sim", "verify", "default"]
+  synth-icestick:
+    build: { context: .., dockerfile: docker/Dockerfile }
+    image: blinker-riscv-lab:latest
+    volumes: ["..:/work"]
+    working_dir: /work
+    # Gateware synthesis → LUT/Fmax ground truth (needs yosys/nextpnr in image)
+    command: ["bash", "-c", "make synth-icestick || echo 'run on host with oss-cad-suite; see docs/VERIFICATION_PLAN.md'"]
+    profiles: ["synth"]

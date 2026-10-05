@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+title: "From Blinker to RISC-V: Reproducible Minimal-Core Study"
+authors: [{family-names: "Lab", given-names: "Blinker RISC-V"}]
+version: 0.1.0
+date-released: 2026-10-05
+license: MIT
+repository-code: "https://example.invalid/blinker-to-riscv-phd-2026"
+keywords: [RISC-V, RV32I, FPGA, softcore, verification, reproducible-research, yosys, RISCOF]

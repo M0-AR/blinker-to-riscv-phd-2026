@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.vcd
+*.out
+a.out
+obj_dir/
+build.json
+soc.asc

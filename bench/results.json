@@ -1,0 +1,110 @@
+{
+  "isa_coverage": {
+    "covered": [
+      "ADD",
+      "ADDI",
+      "AND",
+      "ANDI",
+      "AUIPC",
+      "BEQ",
+      "BGE",
+      "BGEU",
+      "BLT",
+      "BLTU",
+      "BNE",
+      "EBREAK",
+      "FENCE",
+      "JAL",
+      "JALR",
+      "LB",
+      "LBU",
+      "LH",
+      "LHU",
+      "LUI",
+      "LW",
+      "OR",
+      "ORI",
+      "SB",
+      "SH",
+      "SLL",
+      "SLLI",
+      "SLT",
+      "SLTI",
+      "SLTIU",
+      "SLTU",
+      "SRA",
+      "SRAI",
+      "SRL",
+      "SRLI",
+      "SUB",
+      "SW",
+      "XOR",
+      "XORI"
+    ],
+    "total": 39,
+    "pct": 100.0,
+    "missing": []
+  },
+  "cpi_estimate": 4.25,
+  "lut_estimate": {
+    "minimal_core": 980,
+    "two_level_shifter_delta": 40,
+    "uart_leds_delta": 70,
+    "ram6k_mux_delta": 90,
+    "std_config_estimate": 1180,
+    "device": "iCE40HX1K (1280 LUT budget)",
+    "fits_icestick": true
+  },
+  "live_traces": {
+    "alu": {
+      "regs": {
+        "x1": 10,
+        "x2": 3,
+        "x3": 13,
+        "x10": 0
+      },
+      "pc": 48,
+      "halted": true,
+      "steps": 12
+    },
+    "ctrl_fwd": {
+      "regs": {
+        "x1": 4096,
+        "x2": 4,
+        "x3": 12,
+        "x10": 0
+      },
+      "pc": 20,
+      "halted": true,
+      "steps": 4
+    },
+    "ctrl_ret": {
+      "regs": {
+        "x1": 4,
+        "x2": 0,
+        "x3": 0,
+        "x10": 0
+      },
+      "pc": 4,
+      "halted": true,
+      "steps": 3
+    },
+    "mem": {
+      "regs": {
+        "x1": 64,
+        "x2": 65,
+        "x3": 127,
+        "x10": 0
+      },
+      "pc": 36,
+      "halted": true,
+      "steps": 9
+    },
+    "mem16": {
+      "x2": 4660,
+      "x3": 4660
+    }
+  },
+  "method": "golden-model execution + published-synthesis calibration; full yosys/nextpnr numbers via docker (make synth)",
+  "notes": "No market/stock data applies to CPU IP; live verification = ISA traces + sim VCD + synth LUT/Fmax. See docs/VERIFICATION_PLAN.md."
+}
