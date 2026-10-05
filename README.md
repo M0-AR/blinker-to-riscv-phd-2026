@@ -53,14 +53,14 @@ looks exactly like the SVG above, only yours will be real.
 - [🚀 Quick start (60 seconds, no hardware)](#-quick-start-60-seconds-no-hardware)
 - [🧰 Installation](#-installation)
 - [📖 Usage](#-usage)
-- [🏗️ Architecture — how the CPU works](#️-architecture--how-the-cpu-works)
-- [🗺️ The journey — 24 steps, one change at a time](#️-the-journey--24-steps-one-change-at-a-time)
+- [🏗️ Architecture — how the CPU works](#-architecture--how-the-cpu-works)
+- [🗺️ The journey — 24 steps, one change at a time](#-the-journey--24-steps-one-change-at-a-time)
 - [✅ Verification & benchmarks](#-verification--benchmarks)
 - [🔌 Boards & hardware](#-boards--hardware)
 - [💾 Firmware & software](#-firmware--software)
 - [🌐 Website & GitHub Pages](#-website--github-pages)
 - [📸 Screenshots & video demo](#-screenshots--video-demo)
-- [🗺️ Roadmap](#️-roadmap)
+- [🗺️ Roadmap](#-roadmap)
 - [🤝 Contributing](#-contributing)
 - [📜 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
@@ -179,10 +179,7 @@ Requires only **Python 3** — no FPGA, no toolchain, no Docker.
 ```bash
 git clone <your-fork-url> blinker-to-riscv
 cd blinker-to-riscv
-python3 sim/test_golden_model.py   # 26 CPU behavior tests
-python3 sim/check_rtl.py           # RTL structure checks
-python3 fw/generate_hex.py         # build firmware + re-verify it
-python3 bench/bench.py             # coverage, speed estimate, live traces
+bash scripts/run_all.sh              # the whole gate: 8 steps + audit
 ```
 
 Expected ending (your numbers must match — they are the proof):
@@ -190,15 +187,17 @@ Expected ending (your numbers must match — they are the proof):
 ```
 RESULT: 26 passed, 0 failed
 ALL RTL STRUCTURAL CHECKS PASSED
+DECODE EDGE PROOF: PASS
+SOC MEM PROOF: PASS
 FIRMWARE HEX VERIFIED
+FW/BOARDS GATE: PASS
 "pct": 100.0, "missing": []
+DOCS GATE: PASS
+AUDIT: 0 issues
+ALL GREEN — see bench/results.json + docs/
 ```
 
-Or everything at once:
-
-```bash
-bash scripts/run_all.sh   # exits non-zero if anything regresses
-```
+The script exits non-zero on the first regression — a red line names the rung.
 
 With Docker (simulators + synthesis + compiler in one image):
 
@@ -337,8 +336,12 @@ failure stops the build.
 |---|---|---|
 | 26 directed CPU tests | `python3 sim/test_golden_model.py` | **26 passed, 0 failed** |
 | RTL structure | `python3 sim/check_rtl.py` | **ALL PASSED** (5 RTL + 2 benches) |
+| Decode edge proof | `python3 sim/test_decode_edge.py` | FENCE≠JAL on all 11 classes, both halt correctly |
+| Memory-lane proof | `python3 sim/test_soc_mem.py` | SB/SH/SW per-lane safe, neighbors preserved |
 | Firmware re-verified | `python3 fw/generate_hex.py` | blinky `x8=31`, mul `x10=143`, both halted |
+| Firmware + boards | `python3 sim/check_fw_boards.py` | linker/startup/pin contract, 31 checks |
 | Coverage / speed / size | `python3 bench/bench.py` | **100.0% of 39-item RV32I list, CPI 4.25 bound** |
+| Zero-to-hero audit | `python3 sim/audit_zero_to_hero.py` | **0 issues** (files, anchors, opcodes, numbers, HTML, git) |
 | Decoder bench | iverilog `tb_decoder.v` (Docker) | `ALL DECODER TESTS PASSED` |
 | SoC bench | iverilog `tb_soc_bench.v` (Docker) | `EBREAK observed`, UART bytes captured |
 | Synthesis | `make synth-icestick` (Docker) | **~1180 std / ~980 minimal vs 1280 budget — fits** |

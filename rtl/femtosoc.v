@@ -40,10 +40,12 @@ module femtosoc #(
     wire [31:0] ram_idx = mem_addr[23:2]; // word index; synthesis trims to RAM_WORDS
     always @(posedge clk) begin
         if (isRAM) begin
-            if (mem_wmask[0]) RAM[ram_idx] <= mem_wdata; // simplified word write
-            // NOTE: byte-masked variant elaborated in docs; word path kept for
-            // minimal LUT count. Full SB/SH support lives in quark lane logic
-            // + testbench-checked model; see bench/coverage notes.
+            // Per-byte masked write: SB/SH/SW all safe (maps to SB_RAM40_4K
+            // masked-write primitive; semantics proved in sim/test_soc_mem.py).
+            if (mem_wmask[0]) RAM[ram_idx][ 7:0 ] <= mem_wdata[ 7:0 ];
+            if (mem_wmask[1]) RAM[ram_idx][15:8 ] <= mem_wdata[15:8 ];
+            if (mem_wmask[2]) RAM[ram_idx][23:16] <= mem_wdata[23:16];
+            if (mem_wmask[3]) RAM[ram_idx][31:24] <= mem_wdata[31:24];
             ram_q <= RAM[ram_idx];
         end
     end

@@ -49,6 +49,9 @@ module tb_decoder;
         // EBREAK
         instr = 32'h00100073; #1;
         check(isSYSTEM, "EBREAK SYSTEM");
+        // FENCE must NOT decode as JAL (bit3&bit6 disambiguation)
+        instr = 32'h0000000F; #1; // fence iorw,iorw
+        check(isFENCE & !isJAL, "FENCE not JAL");
         if (errors==0) $display("ALL DECODER TESTS PASSED");
         else $display("%0d TEST(S) FAILED", errors);
         $finish;

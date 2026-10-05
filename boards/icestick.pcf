@@ -1,0 +1,22 @@
+# icestick.pcf — IceStick (iCE40HX1K-TQ144) pin constraints for femtosoc.
+# Pins triple-confirmed (Amaranth platform data + two independent PCF examples
+# agree on every number below). Verified by sim/check_boards.py.
+# Package for nextpnr: --hx1k --package tq144
+# NOTE: the IceStick has no reset button; RESET is a touch-pin (finger on 47).
+
+# 12 MHz onboard oscillator
+set_io CLK 21
+
+# 5 LEDs D1..D5 (D5 green, rest red)
+set_io LEDS[0] 99
+set_io LEDS[1] 98
+set_io LEDS[2] 97
+set_io LEDS[3] 96
+set_io LEDS[4] 95
+
+# FTDI USB-serial (FPGA TX out on 8, RX in on 9)
+set_io TXD 8
+set_io RXD 9
+
+# Touch reset (no physical button on this board)
+set_io RESET 47

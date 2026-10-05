@@ -41,8 +41,7 @@ module quark_core #(
     reg [31:0] regfile [0:31];
     reg [31:0] rs1, rs2;
     reg [29:0] instr; // instr[31:2]; low 2 bits are always 11 in RV32I
-    wire [4:0] rs1Id = instr[19-2:15-2]; // = mem bits adjusted: instr holds [31:2]
-    // NOTE: to keep indexing obvious we reconstruct full fields below.
+    // Full 32-bit view (low 2 bits are always 11: no compressed extension).
     wire [31:0] full_instr = {instr, 2'b11};
     wire [4:0] rs1_full = full_instr[19:15];
     wire [4:0] rs2_full = full_instr[24:20];
@@ -59,7 +58,7 @@ module quark_core #(
     wire isLUI    = (instr[6-2:2-2] == 5'b01101);
     wire isBranch = (instr[6-2:2-2] == 5'b11000);
     wire isJALR   = (instr[6-2:2-2] == 5'b11001);
-    wire isJAL    = full_instr[3];
+    wire isJAL    = full_instr[3] & full_instr[6]; // JAL=1101111; bit3 alone also matches FENCE=0001111, so bit6 disambiguates (proved in sim/test_decode_edge.py)
     wire isSYSTEM = (instr[6-2:2-2] == 5'b11100);
     wire isALU    = isALUimm | isALUreg;
 

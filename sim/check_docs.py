@@ -74,6 +74,12 @@ need('url=preview.html' in root_index and 'docs/preview.html' in root_index,
 for nj in [ROOT / ".nojekyll", ROOT / "docs" / ".nojekyll"]:
     need(nj.exists(), f"{nj.relative_to(ROOT)} exists (Jekyll bypass)")
 
+# --- every file the README/Makefile promises exists ---
+for ref in ["fw/bram.ld", "fw/start.S", "fw/blinker.S", "fw/wait.S",
+            "boards/icestick.pcf", "LICENSE", "Makefile",
+            "docker/Dockerfile", "docker/docker-compose.yml"]:
+    need((ROOT / ref).exists(), f"promised file exists: {ref}")
+
 # --- screenshots ---
 png = ROOT / "docs" / "assets" / "preview.png"
 need(png.exists() and png.stat().st_size > 10000,

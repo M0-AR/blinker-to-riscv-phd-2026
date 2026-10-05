@@ -42,7 +42,7 @@ module rv32i_decoder (
     assign isLUI    = (instr[6:2] == 5'b01101);
     assign isBranch = (instr[6:2] == 5'b11000);
     assign isJALR   = (instr[6:2] == 5'b11001);
-    assign isJAL    =  instr[3]; // 11011; single-bit test (FemtoRV trick)
+    assign isJAL    =  instr[3] & instr[6]; // JAL=1101111; bit3 alone also matches FENCE=0001111, so bit6 disambiguates (proved in sim/test_decode_edge.py)
     assign isSYSTEM = (instr[6:2] == 5'b11100);
 
     assign rs1Id  = instr[19:15];

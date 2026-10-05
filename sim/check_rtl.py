@@ -12,13 +12,15 @@ RTL = ROOT / "rtl"
 
 EXPECT = {
     "clockworks.v": ["module clockworks", "slow_cnt", "resetn"],
-    "decoder.v": ["module rv32i_decoder", "isALUreg", "Bimm", "Jimm", "instr[6:2]"],
+    "decoder.v": ["module rv32i_decoder", "isALUreg", "Bimm", "Jimm", "instr[6:2]",
+                "instr[3] & instr[6]"],
     "quark_core.v": ["module quark_core", "aluMinus", "funct3Is", "flip32",
                      "LOAD_data", "STORE_wmask", "WAIT_DATA", "mem_rbusy",
-                     "parallel_case", "regfile"],
+                     "parallel_case", "regfile", "full_instr[3] & full_instr[6]"],
     "uart_tx.v": ["module uart_tx", "tx", "ready", "BAUD_RATE"],
     "femtosoc.v": ["module femtosoc", "quark_core", "uart_tx", "clockworks",
-                   "isRAM", "isIO", "isSPI", "IO_LEDS_bit", "BENCH"],
+                   "isRAM", "isIO", "isSPI", "IO_LEDS_bit", "BENCH",
+                   "mem_wmask[3]"],
 }
 
 fails = []
