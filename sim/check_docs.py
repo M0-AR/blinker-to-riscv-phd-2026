@@ -60,6 +60,20 @@ need((ROOT / "docs" / "assets" / "terminal-demo.svg").read_text().lstrip().start
      "terminal-demo.svg is valid SVG")
 need("|\n" not in preview, "preview.html has no markdown artifacts")
 
+# --- Pages mirrors (robust under either source setting) ---
+docs_preview = (ROOT / "docs" / "preview.html").read_text()
+need(docs_preview == (ROOT / "docs" / "index.html").read_text(),
+     "docs/preview.html mirrors docs/index.html exactly")
+need('src="assets/terminal-demo.svg"' in docs_preview,
+     "docs/preview.html uses source-relative asset path")
+need('src="docs/assets/terminal-demo.svg"' in preview,
+     "root preview.html uses root-relative asset path")
+root_index = (ROOT / "index.html").read_text()
+need('url=preview.html' in root_index and 'docs/preview.html' in root_index,
+     "root index.html redirects with fallbacks")
+for nj in [ROOT / ".nojekyll", ROOT / "docs" / ".nojekyll"]:
+    need(nj.exists(), f"{nj.relative_to(ROOT)} exists (Jekyll bypass)")
+
 # --- screenshots ---
 png = ROOT / "docs" / "assets" / "preview.png"
 need(png.exists() and png.stat().st_size > 10000,
